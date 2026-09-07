@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Pixel Defender 2D</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+    <div class="arcade-wrapper">
+        <header class="arcade-header">
+            <h1 class="game-title">COSMIC PIXEL DEFENDER</h1>
+            <p class="game-subtitle">★ RETRO 2D SPACE SHOOTER ★</p>
+        </header>
+
+        <main class="game-container">
+            <!-- Canvas del Juego Pixel Art -->
+            <canvas id="gameCanvas"></canvas>
+
+            <!-- HUD Superior -->
+            <div class="hud-top">
+                <!-- Vidas -->
+                <div class="hud-panel hud-lives">
+                    <div class="hud-panel-title">VIDAS</div>
+                    <div id="hudLives">
+                        <span class="life-icon active">🚀</span>
+                        <span class="life-icon active">🚀</span>
+                        <span class="life-icon active">🚀</span>
+                    </div>
+                </div>
+
+                <!-- Contador de Kills de OVNIs -->
+                <div class="hud-panel hud-kills">
+                    <div class="hud-panel-title">OVNIS DERROTADOS</div>
+                    <div class="kills-number" id="hudKills">0 / 50</div>
+                    <div class="progress-track">
+                        <div class="progress-bar-fill" id="killProgressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Monedas -->
+                <div class="hud-panel hud-coins">
+                    <div class="hud-panel-title">MONEDAS</div>
+                    <div>🪙 <span id="hudCoins">0</span></div>
+                </div>
+            </div>
+
+            <!-- Barra de Vida del Súper Jefe -->
+            <div class="boss-hud" id="bossHudContainer">
+                <div class="boss-title">⚠ SÚPER JEFE NODRIZA ALIENÍGENA ⚠</div>
+                <div class="boss-hp-track">
+                    <div class="boss-hp-fill" id="bossHpBar"></div>
+                </div>
+                <div class="boss-hp-text" id="bossHpText">2000 / 2000</div>
+            </div>
+
+            <!-- HUD Inferior: Súper Ataque y Controles -->
+            <div class="hud-bottom">
+                <!-- Tarjeta / Botón del Súper Ataque -->
+                <div class="super-attack-card ready" id="superAttackBtn" title="Activa el súper ataque (Tecla E, Q o Clic derecho)">
+                    <div class="super-icon">⚡</div>
+                    <div class="super-info">
+                        <div class="super-title">SÚPER ATAQUE EMP</div>
+                        <div class="super-track">
+                            <div class="super-bar-fill" id="superProgressBar" style="width: 100%;"></div>
+                        </div>
+                        <div class="super-status" id="superStatusText">⚡ ¡LISTO! [E / Clic]</div>
+                    </div>
+                </div>
+
+                <!-- Botones de Utilidad -->
+                <div class="control-buttons">
+                    <button class="btn-icon" id="pauseBtn" title="Pausar juego (P)">⏸ PAUSA</button>
+                    <button class="btn-icon" id="audioBtn" title="Silenciar / Activar sonido">🔊 SONIDO</button>
+                </div>
+            </div>
+
+            <!-- Pantalla de Inicio -->
+            <div class="screen-overlay" id="startScreen">
+                <h2 class="screen-title">INVASIÓN OVNI</h2>
+                
+                <div class="instructions-box">
+                    <h4>// MANUAL DE VUELO //</h4>
+                    <ul>
+                        <li>🕹 <b>Moverse:</b> <span class="key">WASD</span>, <span class="key">Flechas</span> o <span class="key">Mouse</span></li>
+                        <li>💥 <b>Disparar:</b> <span class="key">Espacio</span> o <span class="key">Clic Izquierdo</span></li>
+                        <li>⚡ <b>Súper Ataque:</b> <span class="key">E</span>, <span class="key">Q</span> o <span class="key">Botón HUD</span></li>
+                        <li>🪙 <b>Monedas:</b> Recógelas cuando caigan de los OVNIs.</li>
+                        <li>👾 <b>Misión:</b> Destruye 50 OVNIs para enfrentar al Súper Jefe.</li>
+                        <li>❤️ <b>Supervivencia:</b> Dispones de 3 vidas.</li>
+                    </ul>
+                </div>
+
+                <button class="btn-arcade" id="btnStart">DESPEGAR (CLIC / ESPACIO)</button>
+            </div>
+
+            <!-- Alerta de Aparición del Súper Jefe -->
+            <div class="boss-alert-overlay" id="bossAlertOverlay">
+                <div class="boss-alert-text">
+                    ¡¡ ALERTA MÁXIMA !!<br>
+                    🛸 50 OVNIS ELIMINADOS 🛸<br>
+                    ¡¡ SÚPER JEFE DETECTADO !!
+                </div>
+            </div>
+
+            <!-- Pantalla de Game Over -->
+            <div class="screen-overlay" id="gameOverScreen" style="display: none;">
+                <h2 class="screen-title danger">MISIÓN FALLIDA</h2>
+                <p style="font-size: 8px; color: #ff88aa; margin-bottom: 15px;">Tu nave ha sido destruida en el espacio profundo.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">OVNIS CAÍDOS</div>
+                        <div class="stat-val" id="finalKills">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">MONEDAS</div>
+                        <div class="stat-val" id="finalCoins">0</div>
+                    </div>
+                    <div class="stat-item" style="grid-column: span 2;">
+                        <div class="stat-label">PUNTUACIÓN TOTAL</div>
+                        <div class="stat-val" id="finalScore">0</div>
+                    </div>
+                </div>
+
+                <button class="btn-arcade" id="btnRestart">REINTENTAR (ESPACIO)</button>
+            </div>
+
+            <!-- Pantalla de Victoria -->
+            <div class="screen-overlay" id="victoryScreen" style="display: none;">
+                <h2 class="screen-title victory">¡VICTORIA TOTAL!</h2>
+                <p style="font-size: 8px; color: #aaffaa; margin-bottom: 15px;">¡Has aniquilado al Súper Jefe y salvado la galaxia!</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">MONEDAS TOTALES</div>
+                        <div class="stat-val" id="vicCoins">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">TIEMPO DE MISIÓN</div>
+                        <div class="stat-val" id="vicTime">0m 0s</div>
+                    </div>
+                    <div class="stat-item" style="grid-column: span 2;">
+                        <div class="stat-label">PUNTUACIÓN FINAL</div>
+                        <div class="stat-val" id="vicScore">0</div>
+                    </div>
+                </div>
+
+                <button class="btn-arcade" id="btnPlayAgain">VOLVER A JUGAR</button>
+            </div>
+
+            <!-- Pantalla de Pausa -->
+            <div class="screen-overlay" id="pauseOverlay" style="display: none;">
+                <h2 class="screen-title">JUEGO EN PAUSA</h2>
+                <p style="font-size: 8px; color: #bbb; margin-bottom: 20px;">Pulsa P o ESC para continuar la batalla cósmica.</p>
+                <button class="btn-arcade" onclick="window.game.togglePause()">CONTINUAR</button>
+            </div>
+        </main>
+
+        <footer class="arcade-footer">
+            <p>Controles híbridos: Teclado + Mouse habilitados simultáneamente</p>
+        </footer>
+    </div>
+
+    <!-- Scripts del Juego -->
+    <script src="js/audio.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
