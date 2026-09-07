@@ -45,4 +45,3 @@ El juego cuenta con controles híbridos (puedes alternar entre teclado y mouse e
 
 ---
 
-Desarrollado para Image Campus.
